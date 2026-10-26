@@ -1,0 +1,17 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    "helpers:pinGitHubActionDigests"
+  ],
+  "postUpdateOptions": ["gomodTidy"],
+  "platformAutomerge": true,
+  "packageRules": [
+    {
+      "description": "Merge non-major updates once the ci-ok check passes; major updates wait for a review.",
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest", "pinDigest"],
+      "automerge": true,
+      "automergeType": "pr"
+    }
+  ]
+}
