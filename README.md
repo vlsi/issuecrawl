@@ -163,3 +163,7 @@ ISSUECRAWL_LIVE=1 go test ./internal/cli -run Live
 The code is split into `core` (the domain model, the `Source` interface, and the cross-source queries), one read-only
 adapter per mirror under `source/`, and a thin [cobra](https://github.com/spf13/cobra) command line under
 `internal/cli`.
+
+## License
+
+issuecrawl is licensed under the [Apache License, Version 2.0](LICENSE).
