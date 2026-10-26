@@ -58,18 +58,23 @@ Jira issues
   CALCITE-7890  Open  [linked, mentioned-by]  SqlDescriptorOperator.checkOperandTypes rejects simple identifiers and is never called
     https://issues.apache.org/jira/browse/CALCITE-7890
     - issue link: Reference (inward)
-    - body of CALCITE-7890: …which CALCITE-7377 added…
+    - body of CALCITE-7890: …nd SESSION check their DESCRIPTOR operands, in {{SqlWindowTableFunction.validateColumnNames}}, which CALCITE-7377 adde…
+  CALCITE-7891  Open  [linked, mentioned-by]  Error for a qualified name in DESCRIPTOR says the argument must be an identifier
+    https://issues.apache.org/jira/browse/CALCITE-7891
+    - issue link: Reference (inward)
+    - body of CALCITE-7891: …und one, so the message names a rule the input already satisfies. The check that raises it, added in CALCITE-7377, rej…
 
 Pull requests
-  apache/calcite#4746  merged 2026-05-30  [mentioned-by]  [CALCITE-7377] Validator should reject a DESCRIPTOR in a table function when it is not an identifier
+  apache/calcite#4746  merged 2026-01-15  [mentioned-by]  [CALCITE-7377] Validator should reject a DESCRIPTOR in a table function when it is not an identifier
     https://github.com/apache/calcite/pull/4746
-    - title of apache/calcite#4746 by mihaibudiu on 2026-01-15: [CALCITE-7377] Validator should reject…
+    - title of apache/calcite#4746 by mihaibudiu on 2026-01-14: [CALCITE-7377] Validator should reject a DESCRIPTOR in a table function when it is not an identifier
+    - body of apache/calcite#4746 by mihaibudiu on 2026-01-14: https://issues.apache.org/jira/browse/CALCITE-7377
 
 Commits
   apache/calcite@fd72200178  [mentions, merged-as]  (not mirrored)
     https://github.com/apache/calcite/commit/fd7220017887c96a46ff604a67954242a67b1513
-    - comment of CALCITE-7377 by Mihai Budiu on 2026-05-30: Fixed in [https://github.com/apache/calcite/commit/fd72200…]
-    - merge-commit of apache/calcite#4746 on 2026-05-30
+    - comment of CALCITE-7377 by Mihai Budiu on 2026-01-15: Fixed in [https://github.com/apache/calcite/commit/fd7220017887c96a46ff604a67954242a67b1513] Thank you for the reviews …
+    - merge-commit of apache/calcite#4746 on 2026-01-15
 ```
 
 A link appears when any of these holds:

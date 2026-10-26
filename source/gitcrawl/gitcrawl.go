@@ -239,29 +239,34 @@ const syncCommand = "gitcrawl sync %s --state all --with pr-metadata"
 // mirrored without what linking needs: without a sync of closed pull
 // requests, merged ones are missing, and without pull request details, their
 // merge commits are unknown.
+//
+// A sync that failed part-way, such as on the GitHub rate limit, stores what
+// it fetched and records no run, so a mirror that holds more closed threads
+// than open ones counts as synced without a recorded run.
 func (s *Source) Warnings(ctx context.Context, p core.Project) []string {
 	if p.GitHub == "" {
 		return nil
 	}
 	remedy := "run: " + fmt.Sprintf(syncCommand, p.GitHub)
-	var threads, fullSyncs, merged, details int
+	var threads, closed, fullSyncs, merged, details int
 	err := s.db.QueryRowContext(ctx, `
 		select
 			(select count(*) from threads t where t.repo_id = r.id),
+			(select count(*) from threads t where t.repo_id = r.id and t.state = 'closed'),
 			(select count(*) from sync_runs sr
 			 where sr.repo_id = r.id and sr.status = 'success' and sr.scope in ('all', 'closed')),
 			(select count(*) from threads t where t.repo_id = r.id and t.merged_at_gh is not null),
 			(select count(*) from pull_request_details pd where pd.repo_id = r.id)
-		from repositories r where r.full_name = ? collate nocase`, p.GitHub).Scan(&threads, &fullSyncs, &merged, &details)
+		from repositories r where r.full_name = ? collate nocase`, p.GitHub).Scan(&threads, &closed, &fullSyncs, &merged, &details)
 	if errors.Is(err, sql.ErrNoRows) {
 		return []string{fmt.Sprintf("gitcrawl: %s does not mirror %s; %s", s.path, p.GitHub, remedy)}
 	}
 	if err != nil {
 		return []string{fmt.Sprintf("gitcrawl: check %s in %s: %v", p.GitHub, s.path, err)}
 	}
-	if fullSyncs == 0 {
-		return []string{fmt.Sprintf("gitcrawl: %s holds %d threads of %s but no sync of closed ones, so merged pull requests may be missing; %s",
-			s.path, threads, p.GitHub, remedy)}
+	if fullSyncs == 0 && closed < threads-closed {
+		return []string{fmt.Sprintf("gitcrawl: %s holds %d threads of %s, %d of them closed, and no sync of closed ones, so merged pull requests may be missing; %s",
+			s.path, threads, p.GitHub, closed, remedy)}
 	}
 	if merged > 0 && details == 0 {
 		return []string{fmt.Sprintf("gitcrawl: %s holds %d merged pull requests of %s but no pull request details, so their merge commits are unknown; %s",

@@ -2,6 +2,8 @@ package core_test
 
 import (
 	"context"
+	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -83,7 +85,7 @@ func TestShowReportsAnIssueTheMirrorDoesNotHold(t *testing.T) {
 // pull request is then missing without any other sign.
 func TestShowWarnsWhenGitcrawlNeverSyncedClosedPullRequests(t *testing.T) {
 	sources := openSources(t, testfixture.GadakDB(t),
-		testfixture.GitcrawlDB(t, `update sync_runs set scope = 'open'`))
+		testfixture.GitcrawlDB(t, `update sync_runs set scope = 'open'`, openPullRequests(2)))
 
 	res, err := core.Show(context.Background(), sources, calcite, core.JiraIssue("CALCITE-7377"))
 	require.NoError(t, err)
@@ -133,4 +135,29 @@ func TestShowWarnsWhenTheProjectNamesNoRepository(t *testing.T) {
 	require.Len(t, res.Links, 3)
 	assert.Equal(t, []string{"project calcite names no GitHub repository, so every mirrored repository was searched; set projects.calcite.github in the config"}, res.Warnings)
 	assert.Equal(t, "apache/calcite#4746", summarize(res.Links)[1].Key, "pull request found without a configured repository")
+}
+
+// openPullRequests inserts n open pull requests of apache/calcite that
+// mention no Jira key, numbered from 9001.
+func openPullRequests(n int) string {
+	var b strings.Builder
+	for i := range n {
+		fmt.Fprintf(&b, `insert into threads(repo_id, github_id, number, kind, state, title, html_url, labels_json,
+			assignees_json, raw_json, content_hash, updated_at) values
+			(2, 'g%[1]d', %[1]d, 'pull_request', 'open', 'Open change', 'https://github.com/apache/calcite/pull/%[1]d',
+			 '[]', '[]', '{}', 'h%[1]d', '2026-10-26T00:00:00Z');
+`, 9001+i)
+	}
+	return b.String()
+}
+
+// A sync that stopped on the GitHub rate limit records no run but keeps the
+// closed pull requests it stored, and the mirror is complete enough to link.
+func TestShowTrustsClosedPullRequestsWithoutARecordedSync(t *testing.T) {
+	sources := openSources(t, testfixture.GadakDB(t),
+		testfixture.GitcrawlDB(t, `delete from sync_runs`))
+
+	res, err := core.Show(context.Background(), sources, calcite, core.JiraIssue("CALCITE-7377"))
+	require.NoError(t, err)
+	assert.Empty(t, res.Warnings)
 }
