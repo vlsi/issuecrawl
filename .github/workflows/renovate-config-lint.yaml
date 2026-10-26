@@ -1,0 +1,34 @@
+name: Validate Renovate Config
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - renovate.json
+      - .github/workflows/renovate-config-lint.yaml
+  pull_request:
+    paths:
+      - renovate.json
+      - .github/workflows/renovate-config-lint.yaml
+
+permissions:
+  contents: read
+
+jobs:
+  validate-renovate-config:
+    name: Validate renovate.json
+    runs-on: ubuntu-latest
+    container:
+      image: renovate/renovate:44.161.1@sha256:a57b12d2415446e8e6695c7506881651134f6bbc3572b26882194da2069def00
+      options: --user 0
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Validate configuration and resolve shared presets
+        uses: netcracker/qubership-workflow-hub/actions/renovate-validate@0eefd4976131d113c986281eed8bc642b6da303d # v2.8.1
+        env:
+          GITHUB_COM_TOKEN: ${{ github.token }}
