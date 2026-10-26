@@ -1,28 +1,16 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:recommended",
-    "helpers:pinGitHubActionDigests"
+    "github>Netcracker/renovate-config:org-inherited-config",
+    "github>Netcracker/renovate-config:base",
+    "github>Netcracker/renovate-config:automerge",
+    "github>Netcracker/renovate-config:github-actions",
+    "github>Netcracker/renovate-config:go"
   ],
-  "postUpdateOptions": [
-    "gomodTidy"
-  ],
-  "platformAutomerge": true,
+  "semanticCommits": "auto",
   "packageRules": [
     {
-      "description": "Merge non-major updates once the ci-ok check passes; major updates wait for a review.",
-      "matchUpdateTypes": [
-        "minor",
-        "patch",
-        "pin",
-        "digest",
-        "pinDigest"
-      ],
-      "automerge": true,
-      "automergeType": "pr"
-    },
-    {
-      "description": "GitHub's own actions are automerged on major updates too.",
+      "description": "Automerge major updates of GitHub's own actions too: ci.yml runs actions/checkout and actions/setup-go, so a green ci-ok exercises the new major. A group of their own keeps a third-party major, which waits for a review, from holding them back.",
       "matchManagers": [
         "github-actions"
       ],
@@ -33,8 +21,8 @@
       "matchUpdateTypes": [
         "major"
       ],
-      "automerge": true,
-      "automergeType": "pr"
+      "groupName": "major GitHub-owned Actions",
+      "automerge": true
     }
   ]
 }
