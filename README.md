@@ -117,9 +117,8 @@ commit, still appears, marked `(not mirrored)`, with its URL.
 
 ## Configuration
 
-issuecrawl reads `issuecrawl/config.toml` in the user config directory (`~/Library/Application
-Support/issuecrawl/config.toml` on macOS, `~/.config/issuecrawl/config.toml` on Linux), or the file `--config` names.
-Every setting is optional.
+issuecrawl reads `~/.config/issuecrawl/config.toml`, or `$XDG_CONFIG_HOME/issuecrawl/config.toml` when that variable
+is set, on macOS as on Linux. `--config` names another file. Every setting is optional.
 
 ```toml
 [sources.gitcrawl]

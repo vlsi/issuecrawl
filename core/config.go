@@ -65,11 +65,18 @@ type Project struct {
 	KeyPattern string `toml:"key_pattern"`
 }
 
-// DefaultConfigPath returns issuecrawl/config.toml under [os.UserConfigDir].
+// DefaultConfigPath returns issuecrawl/config.toml under $XDG_CONFIG_HOME,
+// or under ~/.config when XDG_CONFIG_HOME is unset or not absolute. The path
+// is the same on every OS, macOS included, as the XDG Base Directory
+// Specification prescribes for a command-line tool.
 func DefaultConfigPath() (string, error) {
-	dir, err := os.UserConfigDir()
-	if err != nil {
-		return "", err
+	dir := os.Getenv("XDG_CONFIG_HOME")
+	if !filepath.IsAbs(dir) {
+		home, err := os.UserHomeDir()
+		if err != nil {
+			return "", err
+		}
+		dir = filepath.Join(home, ".config")
 	}
 	return filepath.Join(dir, "issuecrawl", "config.toml"), nil
 }

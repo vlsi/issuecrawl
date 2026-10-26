@@ -42,7 +42,7 @@ the mirrors and never contacts the trackers; sync them with their own tools.`,
 	}
 	root.SetOut(stdout)
 	root.SetErr(stderr)
-	root.PersistentFlags().StringVar(&opts.configPath, "config", "", "config file (default: issuecrawl/config.toml in the user config directory)")
+	root.PersistentFlags().StringVar(&opts.configPath, "config", "", "config file (default: $XDG_CONFIG_HOME/issuecrawl/config.toml, or ~/.config/issuecrawl/config.toml)")
 	root.PersistentFlags().BoolVar(&opts.json, "json", false, "write JSON instead of text")
 	root.AddCommand(newShowCmd(opts))
 	return root

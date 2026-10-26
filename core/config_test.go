@@ -131,3 +131,24 @@ func TestGadakDBRefusesToGuessBetweenWorkspaces(t *testing.T) {
 	assert.ErrorContains(t, err, "found 2 gadak workspaces")
 	assert.ErrorContains(t, err, "asf, work")
 }
+
+func TestDefaultConfigPath(t *testing.T) {
+	home := setHome(t)
+	tests := []struct {
+		name          string
+		xdgConfigHome string
+		want          string
+	}{
+		{"XDG_CONFIG_HOME is used", "/xdg", "/xdg/issuecrawl/config.toml"},
+		{"unset XDG_CONFIG_HOME falls back to ~/.config", "", filepath.Join(home, ".config", "issuecrawl", "config.toml")},
+		{"relative XDG_CONFIG_HOME is ignored", "xdg", filepath.Join(home, ".config", "issuecrawl", "config.toml")},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Setenv("XDG_CONFIG_HOME", tt.xdgConfigHome)
+			got, err := DefaultConfigPath()
+			require.NoError(t, err)
+			assert.Equal(t, tt.want, got, "DefaultConfigPath() with XDG_CONFIG_HOME=%q", tt.xdgConfigHome)
+		})
+	}
+}
